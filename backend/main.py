@@ -1,11 +1,17 @@
-# import os
+import os
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import base64
-import time
+import time, datetime
+from pymongo import MongoClient
 
+# DB
+client = MongoClient(os.environ.get("MONGO_DB_PATH"))
+db = client.imageSet
+
+# APP
 app = FastAPI()
 
 origins = [
@@ -53,6 +59,13 @@ async def upload_image(file: ImageStr):
         now = time.strftime('%Y%m%d%H%M%S')
         with open(f"images/{now}.jpeg", "wb") as f:
             f.write(image)
+        
+        db.img.insert_one({
+            "date": datetime.datetime.now(),
+            "file_name": now + '.jpeg',
+            "url": "images/" + now + ".jpeg"
+        })
+
         return JSONResponse(content={"message": "Image %s uploaded successfully" % (now + '.jpeg')})
 
     except Exception as e:
