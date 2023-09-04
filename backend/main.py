@@ -1,4 +1,4 @@
-import os
+# import os
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
@@ -10,7 +10,13 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "http://localhost:8000"
+    "http://localhost:8000",
+    "http://infusor.store",
+    "http://infusor.store:3000",
+    "http://infusor.store:8000",
+    "http://www.infusor.store",
+    "http://www.infusor.store:3000",
+    "http://www.infusor.store:8000"
 ]
 
 app.add_middleware(
@@ -21,11 +27,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-IMG_DIR = os.path.join(BASE_DIR, 'images/')
-SERVER_IMG_DIR = os.path.join('http://localhost:8000/', 'images/')
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# IMG_DIR = os.path.join(BASE_DIR, 'images/')
+# SERVER_IMG_DIR = os.path.join('http://localhost:8000/', 'images/')
 
-@app.get("/")
+@app.get("/api")
 async def root():
     
     return "hello world!"

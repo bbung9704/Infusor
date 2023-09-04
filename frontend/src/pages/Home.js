@@ -5,7 +5,7 @@ const Home = () => {
     const [res, setResponse] = React.useState(null);
 
     const getMethod = () => {
-        axios.get("http://localhost:8000/")
+        axios.get("http://infusor.store/api")
         .then((response) => { setResponse(response.data) })
         .catch((e) => { setResponse( e.message ) })
         .finally(() => {})
