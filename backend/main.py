@@ -16,7 +16,13 @@ origins = [
     "http://infusor.store:8000",
     "http://www.infusor.store",
     "http://www.infusor.store:3000",
-    "http://www.infusor.store:8000"
+    "http://www.infusor.store:8000",
+    "https://infusor.store",
+    "https://infusor.store:3000",
+    "https://infusor.store:8000",
+    "https://www.infusor.store",
+    "https://www.infusor.store:3000",
+    "https://www.infusor.store:8000"
 ]
 
 app.add_middleware(
