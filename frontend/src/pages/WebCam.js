@@ -26,7 +26,7 @@ const WebCam = () => {
         const formData = new FormData()
         formData.append("file", imgSrc)
         
-        axios.post("http://infusor.store/api/upload", {
+        axios.post("https://infusor.store/api/upload", {
             "file": imgSrc
         })
         .then((response) => { console.log(response.data.message)})
