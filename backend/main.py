@@ -1,4 +1,4 @@
-import os
+import os, uuid
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
@@ -6,6 +6,15 @@ from pydantic import BaseModel
 import base64
 import time, datetime
 from pymongo import MongoClient
+
+import firebase_admin
+from firebase_admin import credentials, storage
+
+# Firebase Storage
+cred = credentials.Certificate('key/serviceKey.json')
+firebase_admin.initialize_app(cred)
+bucket = storage.bucket('infuser-7a7c8.appspot.com')
+
 
 # DB
 client = MongoClient(os.environ.get("MONGO_DB_PATH"))
@@ -59,17 +68,29 @@ async def upload_image(file: ImageStr):
     try:
         image = file.file[file.file.find(",")+1:]
         image = base64.b64decode(image)
-        now = time.strftime('%Y%m%d%H%M%S')
-        with open(f"images/{now}.jpeg", "wb") as f:
-            f.write(image)
-        
+        file_name = str(uuid.uuid1())
+
+        #### 서버 직접 저장
+        # with open(f"images/{now}.jpeg", "wb") as f:
+        #     f.write(image)
+        ####
+
+        #### db 저장        
         db.img.insert_one({
             "date": datetime.datetime.now(),
-            "file_name": now + '.jpeg',
-            "url": "images/" + now + ".jpeg"
+            "file_name": file_name + '.jpeg',
+            "url": "images/" + file_name + ".jpeg"
         })
+        ####
 
-        return JSONResponse(content={"message": "Image %s uploaded successfully" % (now + '.jpeg')})
+        #### Firebase Storage 저장
+        blob = bucket.blob('images/'+ file_name + '.jpeg')
+        blob.upload_from_string(image, content_type='image/jpeg')
+        ####
+
+        return JSONResponse(content={"message": "Image %s uploaded successfully" % (file_name + '.jpeg')})
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+
