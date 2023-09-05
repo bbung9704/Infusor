@@ -45,9 +45,12 @@ app.add_middleware(
 
 @app.get("/api")
 async def root():
-    
-    return "hello world!"
+    try:
+        return "connected"
 
+    except Exception as e:
+        return e
+    
 class ImageStr(BaseModel):
     file: str
 

@@ -1,20 +1,26 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import Webcam from "react-webcam";
 import axios from "axios";
 
+import Webcam from "react-webcam";
+import serviceUrl from "../utils/Utils";
 import '../css/WebCam.css'
+
+
 
 const WebCam = () => {
     const webcamRef = React.useRef(null);
     const [imgSrc, setImgSrc] = React.useState(null);
-    
+
+    const videoConstraints = {
+        aspectRatio: 1
+    };
+
     // 캡쳐
     const capture = React.useCallback(() => {
-            const imageSrc = webcamRef.current.getScreenshot();
-            setImgSrc(imageSrc);
-        }, [webcamRef]);
-    
+        const imageSrc = webcamRef.current.getScreenshot();
+        setImgSrc(imageSrc);
+    }, [webcamRef]);
+
 
     // 다시찍기
     const retake = () => {
@@ -25,36 +31,57 @@ const WebCam = () => {
     const postImage = () => {
         const formData = new FormData()
         formData.append("file", imgSrc)
-        
-        axios.post("https://infusor.store/api/upload", {
+
+        axios.post(serviceUrl + "/upload", {
             "file": imgSrc
         })
-        .then((response) => { console.log(response.data.message)})
-        .catch((e) => console.log(e))
+            .then((response) => { console.log(response.data.message) })
+            .catch((e) => console.log(e))
     };
 
-    
+    const [windowSize, setWindowSize] = React.useState({
+        width: undefined,
+        height: undefined,
+    });
+
+    React.useEffect(() => {
+        const handleResize = () => {
+            setWindowSize({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            })
+        };
+        window.addEventListener("resize", handleResize);
+
+        handleResize();
+    }, []);
+
 
     return (
-        <div>
-            { imgSrc ? (
+        <div className="container">
+            {imgSrc ? (
                 <div>
-                    <img src={imgSrc} alt="webcam" />
-                    <button onClick={retake}>Retake Photo</button>
-                    <Link to="/result" state={{img: imgSrc}}>
-                    <button onClick={ postImage }>Send Photo</button>
-                    </Link>
+                    <div className="img-screen">
+                        <img src={imgSrc} alt="webcam" />
+                    </div>
+                    <button className="capture" onClick={retake}>Retake</button>
+                    <button className="post" onClick={postImage}>Send</button>
                 </div>
-                ) : (
-                    <div className="webcam">
-                    <Webcam 
-                    audio={false}
-                    ref={webcamRef}
-                    screenshotFormat="image/jpeg" 
-                    />
-                    <button onClick={capture}>Capture Photo</button>
+            ) : (
+                <div>
+                    <div className="img-screen">
+                        <Webcam
+                            videoConstraints={videoConstraints}
+                            width={windowSize.height >= windowSize.width ? windowSize.width : windowSize.height}
+                            audio={false}
+                            ref={webcamRef}
+                            screenshotFormat="image/jpeg"
+                        />
+                    </div>
+                    <button className="capture" onClick={capture}>Capture</button>
                 </div>
-                )}
+            )}
+            <button className="back" onClick={() => { window.location.href = "/" }}>Back</button>
         </div>
     );
 };

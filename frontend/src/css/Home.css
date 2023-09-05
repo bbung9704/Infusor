@@ -1,0 +1,18 @@
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.start-btn {
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+}
+
+.start-btn button {
+    height: 35px;
+    width: 150px;
+    margin: 15px;
+}

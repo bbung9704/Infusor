@@ -1,21 +1,27 @@
 import React from "react";
+// import { Link } from "react-router-dom";
 import axios from "axios";
+import serviceUrl from "../utils/Utils";
+import '../css/Home.css';
 
 const Home = () => {
     const [res, setResponse] = React.useState(null);
 
     const getMethod = () => {
-        axios.get("https://infusor.store/api")
+        axios.get(serviceUrl)
         .then((response) => { setResponse(response.data) })
         .catch((e) => { setResponse( e.message ) })
         .finally(() => {})
     };
 
     return (
-        <div>
-            <h1>Home 화면 입니다.</h1>
-            <button onClick={ getMethod }>Get</button>
-            <h2>{ res }</h2>
+        <div className="main">
+            <h1>Infusor</h1>
+            <div className="start-btn">
+                <button onClick={ getMethod }>Network Test</button>
+                <button onClick={()=>{window.location.href="/webcam"}}>Camera</button>
+            </div>
+            <div>{res}</div>
         </div>
     );
 }
