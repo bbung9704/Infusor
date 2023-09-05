@@ -1,5 +1,5 @@
 import React from "react";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import serviceUrl from "../utils/Utils";
 import '../css/Home.css';
@@ -19,7 +19,7 @@ const Home = () => {
             <h1>Infusor</h1>
             <div className="start-btn">
                 <button onClick={ getMethod }>Network Test</button>
-                <button onClick={()=>{window.location.href="/webcam"}}>Camera</button>
+                <button><Link to="/webcam">Camera</Link></button>
             </div>
             <div>{res}</div>
         </div>
