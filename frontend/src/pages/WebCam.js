@@ -41,7 +41,10 @@ const WebCam = () => {
         axios.post(serviceUrl + "/upload", {
             "file": imgSrc
         })
-            .then((response) => { console.log(response.data.message) })
+            .then((response) => {
+                console.log(response.data.message);
+                retake();
+            })
             .catch((e) => console.log(e))
     };
 
@@ -80,7 +83,11 @@ const WebCam = () => {
                     <div className="img-screen">
                         <Webcam
                             videoConstraints={videoConstraints}
-                            width={windowSize.height >= windowSize.width ? windowSize.width : windowSize.height}
+                            width={
+                                windowSize.height >= windowSize.width ? 
+                                windowSize.width > 480 ? 480 : windowSize.width 
+                                : windowSize.height > 480 ? 480 : windowSize.height
+                            }
                             audio={false}
                             ref={webcamRef}
                             screenshotFormat="image/jpeg"
