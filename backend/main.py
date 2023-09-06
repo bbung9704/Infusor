@@ -1,12 +1,16 @@
-import os, uuid
+import os, uuid, base64, datetime
+
+# FastAPI
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import base64
-import time, datetime
+import uvicorn
+
+# DB
 from pymongo import MongoClient
 
+# Firebase Storage
 import firebase_admin
 from firebase_admin import credentials, storage
 
@@ -92,5 +96,8 @@ async def upload_image(file: ImageStr):
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
     
 

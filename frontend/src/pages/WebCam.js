@@ -10,9 +10,11 @@ import '../css/WebCam.css'
 const WebCam = () => {
     const webcamRef = React.useRef(null);
     const [imgSrc, setImgSrc] = React.useState(null);
+    const [facingMode, setFacingMode] = React.useState("environment");
 
     const videoConstraints = {
-        aspectRatio: 1
+        aspectRatio: 1,
+        facingMode: facingMode
     };
 
     // 캡쳐
@@ -27,6 +29,10 @@ const WebCam = () => {
         setImgSrc(null);
     };
 
+    const changeCamera = () => {
+        setFacingMode((prevState) => prevState === "environment" ? "user" : "environment")
+    };
+
     // 이미지 업로드
     const postImage = () => {
         const formData = new FormData()
@@ -39,6 +45,7 @@ const WebCam = () => {
             .catch((e) => console.log(e))
     };
 
+    // 반응형 카메라 크기조절
     const [windowSize, setWindowSize] = React.useState({
         width: undefined,
         height: undefined,
@@ -55,6 +62,7 @@ const WebCam = () => {
 
         handleResize();
     }, []);
+
 
 
     return (
@@ -79,6 +87,7 @@ const WebCam = () => {
                         />
                     </div>
                     <button className="capture" onClick={capture}>Capture</button>
+                    <button className="post" onClick={changeCamera}>Change</button>
                 </div>
             )}
             <button className="back" onClick={() => { window.location.href = "/" }}>Back</button>
