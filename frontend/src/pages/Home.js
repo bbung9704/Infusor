@@ -20,6 +20,7 @@ const Home = () => {
             <div className="start-btn">
                 <button onClick={ getMethod }>Network Test</button>
                 <button><Link to="/webcam">Camera</Link></button>
+                <button><Link to="/video">Video</Link></button>
             </div>
             <div>{res}</div>
         </div>
