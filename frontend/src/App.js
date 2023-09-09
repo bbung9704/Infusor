@@ -4,6 +4,7 @@ import {Routes, Route} from 'react-router-dom'
 import Home from "./pages/Home"
 import WebCam from "./pages/WebCam"
 import ImageResult from "./pages/ImageResult"
+import Video from "./pages/Video";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/webcam" element={<WebCam />} />
         <Route path="/result" element={<ImageResult />} />
+        <Route path="/video" element={<Video />} />
       </Routes>
     </div>
   );

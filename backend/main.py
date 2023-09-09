@@ -1,4 +1,5 @@
 import os, uuid, base64, datetime
+import affine
 
 # FastAPI
 from fastapi import FastAPI
@@ -7,8 +8,8 @@ from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 
-# DB
-from pymongo import MongoClient
+# # DB
+# from pymongo import MongoClient
 
 # Firebase Storage
 import firebase_admin
@@ -20,9 +21,9 @@ firebase_admin.initialize_app(cred)
 bucket = storage.bucket('infuser-7a7c8.appspot.com')
 
 
-# DB
-client = MongoClient(os.environ.get("MONGO_DB_PATH"))
-db = client.imageSet
+# # DB
+# client = MongoClient(os.environ.get("MONGO_DB_PATH"))
+# db = client.imageSet
 
 # APP
 app = FastAPI()
@@ -74,17 +75,21 @@ async def upload_image(file: ImageStr):
         image = base64.b64decode(image)
         file_name = str(uuid.uuid1())
 
-        #### 서버 직접 저장
-        # with open(f"images/{now}.jpeg", "wb") as f:
-        #     f.write(image)
-        ####
+        ### 서버 직접 저장
+        with open(f"images/test.jpeg", "wb") as f:
+            f.write(image)
+        ###
 
         #### db 저장        
-        db.img.insert_one({
-            "date": datetime.datetime.now(),
-            "file_name": file_name + '.jpeg',
-            "url": "images/" + file_name + ".jpeg"
-        })
+        # db.img.insert_one({
+        #     "date": datetime.datetime.now(),
+        #     "file_name": file_name + '.jpeg',
+        #     "url": "images/" + file_name + ".jpeg"
+        # })
+        ####
+
+        #### Affine transform
+        # transformed_img = affine.affineTransform(image)
         ####
 
         #### Firebase Storage 저장
@@ -97,7 +102,5 @@ async def upload_image(file: ImageStr):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
     
 
