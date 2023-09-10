@@ -13,6 +13,8 @@ const WebCam = () => {
     const [facingMode, setFacingMode] = React.useState("environment");
 
     const videoConstraints = {
+        width: {min:1024},
+        height: {min:1025},
         aspectRatio: 1,
         facingMode: facingMode
     };
@@ -45,7 +47,7 @@ const WebCam = () => {
                 console.log(response.data.message);
                 retake();
             })
-            .catch((e) => console.log(e))
+            .catch((e) => console.log(e.message))
     };
 
     // 반응형 카메라 크기조절

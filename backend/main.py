@@ -1,9 +1,9 @@
-import os, uuid, base64, datetime
+import os, uuid, base64, datetime, cv2
 import affine
 
 # FastAPI
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile
+from fastapi.responses import JSONResponse, Response
 from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
@@ -71,12 +71,11 @@ class ImageStr(BaseModel):
 @app.post("/api/upload")
 async def upload_image(file: ImageStr):
     try:
-        image = file.file[file.file.find(",")+1:]
-        image = base64.b64decode(image)
+        image = await file.read()
         file_name = str(uuid.uuid1())
 
         ### 서버 직접 저장
-        with open(f"images/test.jpeg", "wb") as f:
+        with open(f"images/{file_name}.jpeg", "wb") as f:
             f.write(image)
         ###
 
@@ -89,7 +88,7 @@ async def upload_image(file: ImageStr):
         ####
 
         #### Affine transform
-        # transformed_img = affine.affineTransform(image)
+        image = affine.affineTransform(image)
         ####
 
         #### Firebase Storage 저장
@@ -102,5 +101,27 @@ async def upload_image(file: ImageStr):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+@app.post("/api/uploadtest")
+async def uploadimage(file: UploadFile):
+    try:
+        image = await file.read()
+        file_name = str(uuid.uuid1())
+
+        #### Affine transform
+        image = affine.affineTransform(image)
+        ####
+     
+        ### 서버 직접 저장
+        # with open(f"images/{file_name}.jpeg", "wb") as f:
+        #     f.write(image)
+        ###
+
+        # return JSONResponse(content={"message": "Image %s uploaded successfully" % (file_name + '.jpeg')})
+        image = base64.b64encode(image)
+        
+        return Response(image)
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
     
 
