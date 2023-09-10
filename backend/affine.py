@@ -34,6 +34,7 @@ class QRCodeDetection(Exception):
 
 def affineTransform(img):
     img = np.frombuffer(img, dtype = np.uint8)
+    img = cv2.resize(img, dsize=(0,0), fx=0.3, fy=0.3)
     img = cv2.imdecode(img, cv2.IMREAD_COLOR)
     height, width, _ = img.shape
     detector = cv2.QRCodeDetector()
