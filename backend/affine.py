@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from fastapi import HTTPException
 
 # im = cv2.imread("test3.jpeg")
 # height, width, channel = im.shape
@@ -28,29 +29,27 @@ import numpy as np
 # cv2.waitKey()
 
 
-class QRCodeDetection(Exception):
-    def __str__(self):
-        return "QRCode가 인식되지 않습니다."
-
 def affineTransform(img):
     img = np.frombuffer(img, dtype = np.uint8)
-    img = cv2.resize(img, dsize=(0,0), fx=0.3, fy=0.3)
     img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+    img = cv2.resize(img, dsize=(0,0), fx=0.3, fy=0.3)
     height, width, _ = img.shape
     detector = cv2.QRCodeDetector()
     (rv, points) = detector.detect(img)
     if rv:
         points = np.float32(points[0])
-
+        
         trans_points = cv2.minAreaRect(points)
         trans_points = cv2.boxPoints(trans_points)
 
         trans_points = np.array([trans_points[1], trans_points[2], trans_points[3], trans_points[0]])
-
         trans_points = np.float32(trans_points)
 
-        matrix = cv2.getPerspectiveTransform(points, trans_points)
-        dst = cv2.warpPerspective(img, matrix, (width, height))
+        affine_points = np.array([points[0], points[1], points[3]])
+        affine_trans_points = np.array([trans_points[0], trans_points[1], trans_points[3]])
+
+        matrix = cv2.getAffineTransform(affine_points, affine_trans_points)
+        dst = cv2.warpAffine(img, matrix, (width, height))
 
         _, enc_image = cv2.imencode('.jpeg', dst)
         image_bytes = enc_image.tobytes()
@@ -58,5 +57,4 @@ def affineTransform(img):
         return image_bytes
     
     else:
-        print('exception!')
-        raise QRCodeDetection()
+        raise HTTPException(status_code=404, detail="Cannot detect QRCode")
