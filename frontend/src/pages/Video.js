@@ -1,5 +1,4 @@
-import React, { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 
 import serviceUrl from "../utils/Utils";
@@ -7,32 +6,24 @@ import serviceUrl from "../utils/Utils";
 import '../css/Video.css'
 
 const Video = () => {
-    // const [imageObject, setImageObject] = useState(null);
+    const [imageObject, setImageObject] = useState(
+        {
+            imagePreview: "https://via.placeholder.com/480.jpg",
+            imageFile: "",
+        }
+    );
 
     const handleFileInput = useRef(null);
 
-    const imageObject = useRef(null);
-    
     const handleClick = () => {
         handleFileInput.current.click();
     };
-    
-    // const handleImageChange = (event) => {
-        //     setImageObject({
-            //         imagePreview: URL.createObjectURL(event.target.files[0]),
-            //         imageFile: event.target.files[0],
-            //     });
-            // };
 
-    const navigate = useNavigate();
     const handleImageChange = (event) => {
-        
-        imageObject.current = {
+        setImageObject({
             imagePreview: URL.createObjectURL(event.target.files[0]),
             imageFile: event.target.files[0],
-        };
-        console.log(imageObject.current.imagePreview);
-        navigate('/result', { state: imageObject.current });
+        });
     };
 
     // 이미지 업로드
@@ -40,20 +31,25 @@ const Video = () => {
         const formData = new FormData()
         formData.append("file", imageObject.imageFile)
 
-        axios.post(serviceUrl + "/uploadtest", formData)
+        axios.post(serviceUrl + "/upload", formData)
             .then((response) => {
-                console.log(response.data.message);
+                // setReturnedImage(response.data);
+                setImageObject({
+                    ...imageObject,
+                    imagePreview: "data:image/jpeg;base64," + response.data
+                })
             })
             .catch((e) => {
-                console.log(imageObject.imageFile);
-                console.log(e.message);
+                alert(e.response.data.message);
+                setImageObject({
+                    imagePreview: "https://via.placeholder.com/480.jpg",
+                    imageFile: "",
+                });
             })
     };
 
     return (
-        <div>
-            <button onClick={handleClick}>사진 촬영</button>
-            <button onClick={postImage}>업로드</button>
+        <div className="container">
             <label>
                 <input
                     style={{ display: "none" }}
@@ -64,6 +60,13 @@ const Video = () => {
                     onChange={handleImageChange}
                 />
             </label>
+            <div>
+                <img src={imageObject.imagePreview} alt="result1" />
+            </div>
+            <div className="btn-box">
+                <button onClick={handleClick}>촬영</button>
+                {imageObject.imageFile && <button onClick={postImage}>업로드</button>}
+            </div>
         </div>
     );
 }

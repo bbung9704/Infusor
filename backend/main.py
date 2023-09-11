@@ -1,8 +1,9 @@
 import os, uuid, base64, datetime, cv2
+import numpy as np
 import affine
 
 # FastAPI
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.responses import JSONResponse, Response
 from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -65,50 +66,57 @@ async def root():
     except Exception as e:
         return e
     
-class ImageStr(BaseModel):
-    file: str
+# class ImageStr(BaseModel):
+#     file: str
+
+# @app.post("/api/upload")
+# async def upload_image(file: ImageStr):
+#     try:
+#         image = await file.read()
+#         file_name = str(uuid.uuid1())
+
+#         ### 서버 직접 저장
+#         with open(f"images/{file_name}.jpeg", "wb") as f:
+#             f.write(image)
+#         ###
+
+#         #### db 저장        
+#         # db.img.insert_one({
+#         #     "date": datetime.datetime.now(),
+#         #     "file_name": file_name + '.jpeg',
+#         #     "url": "images/" + file_name + ".jpeg"
+#         # })
+#         ####
+
+#         #### Affine transform
+#         image = affine.affineTransform(image)
+#         ####
+
+        # #### Firebase Storage 저장
+        # blob = bucket.blob('images/'+ file_name + '.jpeg')
+        # blob.upload_from_string(image, content_type='image/jpeg')
+        # ####
+
+#         return JSONResponse(content={"message": "Image %s uploaded successfully" % (file_name + '.jpeg')})
+
+#     except Exception as e:
+#         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 @app.post("/api/upload")
-async def upload_image(file: ImageStr):
-    try:
-        image = await file.read()
-        file_name = str(uuid.uuid1())
-
-        ### 서버 직접 저장
-        with open(f"images/{file_name}.jpeg", "wb") as f:
-            f.write(image)
-        ###
-
-        #### db 저장        
-        # db.img.insert_one({
-        #     "date": datetime.datetime.now(),
-        #     "file_name": file_name + '.jpeg',
-        #     "url": "images/" + file_name + ".jpeg"
-        # })
-        ####
-
-        #### Affine transform
-        image = affine.affineTransform(image)
-        ####
-
-        #### Firebase Storage 저장
-        blob = bucket.blob('images/'+ file_name + '.jpeg')
-        blob.upload_from_string(image, content_type='image/jpeg')
-        ####
-
-        return JSONResponse(content={"message": "Image %s uploaded successfully" % (file_name + '.jpeg')})
-
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
-
-@app.post("/api/uploadtest")
 async def uploadimage(file: UploadFile):
     try:
+        # 이미지 전처리
         image = await file.read()
+        image = np.frombuffer(image, dtype = np.uint8)
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        image = cv2.resize(image, dsize=(0,0), fx=0.3, fy=0.3)
+        
         file_name = str(uuid.uuid1())
 
         #### Affine transform
-        image = affine.affineTransform(image)
+        image = affine.transform(image, 'rot')
+        image = affine.transform(image, 'aff')
+        image = affine.image_process(image)
         ####
      
         ### 서버 직접 저장
@@ -116,12 +124,19 @@ async def uploadimage(file: UploadFile):
         #     f.write(image)
         ###
 
-        # return JSONResponse(content={"message": "Image %s uploaded successfully" % (file_name + '.jpeg')})
+        #### Firebase Storage 저장
+        blob = bucket.blob('images/'+ file_name + '.jpeg')
+        blob.upload_from_string(image, content_type='image/jpeg')
+        ####
+
         image = base64.b64encode(image)
         
         return Response(image)
 
+    except HTTPException as e:
+        return JSONResponse( status_code=404, content={ 'message': e.detail})
+
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        return JSONResponse(content={"error": str(e)}, status_code=404)
     
 

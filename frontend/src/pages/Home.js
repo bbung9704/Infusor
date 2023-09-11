@@ -19,8 +19,7 @@ const Home = () => {
             <h1>Infusor</h1>
             <div className="start-btn">
                 <button onClick={ getMethod }>Network Test</button>
-                <button><Link to="/webcam">Camera</Link></button>
-                <button><Link to="/video">Video</Link></button>
+                <Link to="/video"><button>Video</button></Link>
             </div>
             <div>{res}</div>
         </div>
