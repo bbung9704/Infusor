@@ -95,18 +95,18 @@ class Transformer:
 
     def _setTransPoints(self):
         # 변환할 box 위치
-        trans_points = cv2.minAreaRect(self._points)
         trans_points = cv2.boxPoints(self._minAreaRect)
 
         # minAreaRect에 의한 boxPoint 방향이 제대로 안잡혀 생기는 trans_point 방향 문제 수정
         new_trans_points = [0, 0, 0, 0]
         fpoints = self._points.copy()
         for i in trans_points:
-            short = math.sqrt(self._height^2 + self._width^2)
+            # short = math.sqrt(self._height^2 + self._width^2)
+            short = 10**5
             id = 0
             for idx, j in enumerate(fpoints):
                 d = self.__distance(i, j)
-                if d < short:
+                if d <= short:
                     short = d
                     id = idx
             new_trans_points[id] = i

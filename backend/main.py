@@ -126,6 +126,7 @@ async def uploadimagetest(image: ImageFromFront):
 
         #### Affine transform
         transformer = Transformer(image)
+        print(transformer._width, transformer._height)
         aff = transformer.Affine(transformer._image)
         affrot = transformer.Rotate(aff)
         ####

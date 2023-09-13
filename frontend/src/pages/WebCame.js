@@ -75,7 +75,7 @@ const WebCam = () => {
                         screenshotQuality={1}
                         minScreenshotWidth={4096}
                         minScreenshotHeight={4096}
-                        mirrored={false}
+                        mirrored={true}
                         style={webcamStyle}
                     />
                 )}
@@ -83,12 +83,14 @@ const WebCam = () => {
             </div>
             <div className="webcam-btn">
                 {imgSrc ? (
-                    <div>
+                    <div className="btn-box">
                         <button onClick={retakeImage}>Retake photo</button>
                         <button onClick={postImage}>Upload photo</button>
                     </div>
                 ) : (
+                    <div className="btn-box">
                     <button onClick={captureImage}>Capture photo</button>
+                    </div>
                 )}
             </div>
         </div>
