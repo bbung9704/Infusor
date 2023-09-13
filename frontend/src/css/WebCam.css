@@ -5,7 +5,7 @@
     align-items: center; 
 }
 
-.webcam-container > img {
+.webcam-container > .print-image {
     width: 100%;
 }
 

@@ -65,7 +65,7 @@ const WebCam = () => {
         <div>
             <div className="webcam-container">
                 {imgSrc ? (
-                    <img src={imgSrc} alt="webcam" />
+                    <img src={imgSrc} alt="webcam" className="print-image"/>
                 ) : (
                     <Webcam ref={webcamRef}
                         screenshotFormat="image/jpeg"
