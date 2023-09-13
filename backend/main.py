@@ -1,13 +1,11 @@
-import os, uuid, base64, datetime, cv2
+import uuid, base64
 import numpy as np
-import affine
+from affine import Transformer, ImageProcessor
 
 # FastAPI
 from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.responses import JSONResponse, Response
 from starlette.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import uvicorn
 
 # # DB
 # from pymongo import MongoClient
@@ -54,10 +52,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# IMG_DIR = os.path.join(BASE_DIR, 'images/')
-# SERVER_IMG_DIR = os.path.join('http://localhost:8000/', 'images/')
-
 @app.get("/api")
 async def root():
     try:
@@ -65,58 +59,25 @@ async def root():
 
     except Exception as e:
         return e
-    
-# class ImageStr(BaseModel):
-#     file: str
 
-# @app.post("/api/upload")
-# async def upload_image(file: ImageStr):
-#     try:
-#         image = await file.read()
-#         file_name = str(uuid.uuid1())
-
-#         ### 서버 직접 저장
-#         with open(f"images/{file_name}.jpeg", "wb") as f:
-#             f.write(image)
-#         ###
-
-#         #### db 저장        
-#         # db.img.insert_one({
-#         #     "date": datetime.datetime.now(),
-#         #     "file_name": file_name + '.jpeg',
-#         #     "url": "images/" + file_name + ".jpeg"
-#         # })
-#         ####
-
-#         #### Affine transform
-#         image = affine.affineTransform(image)
-#         ####
-
-        # #### Firebase Storage 저장
-        # blob = bucket.blob('images/'+ file_name + '.jpeg')
-        # blob.upload_from_string(image, content_type='image/jpeg')
-        # ####
-
-#         return JSONResponse(content={"message": "Image %s uploaded successfully" % (file_name + '.jpeg')})
-
-#     except Exception as e:
-#         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 @app.post("/api/upload")
 async def uploadimage(file: UploadFile):
     try:
-        # 이미지 전처리
         image = await file.read()
-        image = np.frombuffer(image, dtype = np.uint8)
-        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-        image = cv2.resize(image, dsize=(0,0), fx=0.3, fy=0.3)
-        
         file_name = str(uuid.uuid1())
+        
+        #### 이미지 전처리
+        processor = ImageProcessor()
+        image = processor.clientToServer(image)
+        origin = processor.serverToClient(image)
+        ####
 
         #### Affine transform
-        image = affine.transform(image, 'rot')
-        image = affine.transform(image, 'aff')
-        image = affine.image_process(image)
+        transformer = Transformer(image)
+        aff = transformer.Affine(transformer._image)
+        affrot = transformer.Rotate(aff)
+        image = processor.serverToClient(affrot)
         ####
      
         ### 서버 직접 저장
@@ -125,6 +86,11 @@ async def uploadimage(file: UploadFile):
         ###
 
         #### Firebase Storage 저장
+        # 원본
+        blob = bucket.blob('origins/'+ file_name + '.jpeg')
+        blob.upload_from_string(origin, content_type='image/jpeg')
+
+        # 변형
         blob = bucket.blob('images/'+ file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
         ####
@@ -134,7 +100,7 @@ async def uploadimage(file: UploadFile):
         return Response(image)
 
     except HTTPException as e:
-        return JSONResponse( status_code=404, content={ 'message': e.detail})
+        return JSONResponse( status_code=404, content={ 'message': e.detail } )
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=404)
