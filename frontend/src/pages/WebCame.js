@@ -41,7 +41,7 @@ const WebCam = () => {
     const postImage = () => {
         axios.post(serviceUrl + "/uploadtest", { data: imgSrc.split(',', 2)[1] })
             .then((response) => {
-                setImgSrc("data:image/jpeg;base64," + response.data)
+                setImgSrc("data:image/jpeg;base64," + response.data);
             })
             .catch((e) => {
                 alert(e.response.data.message);

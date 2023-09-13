@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 
 import serviceUrl from "../utils/Utils";
-
+import scanning from "../images/scanning.png"
 import '../css/Video.css'
 
 const Video = () => {
@@ -48,7 +48,7 @@ const Video = () => {
     };
 
     return (
-        <div className="container">
+        <div>
             <label>
                 <input
                     style={{ display: "none" }}
@@ -59,8 +59,9 @@ const Video = () => {
                     onChange={handleImageChange}
                 />
             </label>
-            <div>
-                <img className="captured-img" src={imageObject.imagePreview} alt="result1" />
+            <div className="webcam-container">
+                <img className="print-image" src={imageObject.imagePreview} alt="result1" />
+                {imageObject.imageFile ? (<img src={scanning} alt="Overlay_Image" className="overlay-image" />) : null}
             </div>
             <div className="btn-box">
                 <button onClick={handleClick}>촬영</button>
