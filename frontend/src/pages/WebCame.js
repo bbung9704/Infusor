@@ -75,7 +75,7 @@ const WebCam = () => {
                         screenshotQuality={1}
                         minScreenshotWidth={4096}
                         minScreenshotHeight={4096}
-                        mirrored={true}
+                        mirrored={false}
                         style={webcamStyle}
                     />
                 )}

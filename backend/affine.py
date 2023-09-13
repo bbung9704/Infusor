@@ -1,12 +1,15 @@
-import cv2, math, base64, io
+import cv2, math, base64, uuid
 import numpy as np
 from pyzbar.pyzbar import decode
 from fastapi import HTTPException
+from firebase import fireBaseStorage
 
+bucket = fireBaseStorage.bucket
 
 class Transformer:
     def __init__(self, image):
         self._image = image
+        self.file_name = str(uuid.uuid1())
         self._height, self._width, self._channel = self._image.shape
         self.qrcode = decode(self._image) # Detect 안되면 qrcode = []
         self._points = None
@@ -21,6 +24,9 @@ class Transformer:
             self._setTransPoints()
         
         else:
+            image = processor.serverToClient(self._image)
+            blob = bucket.blob('fail/'+ self.file_name + '.jpeg')
+            blob.upload_from_string(image, content_type='image/jpeg')
             raise HTTPException(status_code=400, detail='QRCode is not detected.')
         
     def drawPoint(self, image):
@@ -144,3 +150,5 @@ class ImageProcessor:
         image_bytes = enc_image.tobytes()
 
         return image_bytes
+    
+processor = ImageProcessor(0.7)

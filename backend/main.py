@@ -1,5 +1,5 @@
-import uuid, base64, cv2
-from affine import Transformer, ImageProcessor
+import uuid, base64
+from affine import Transformer, ImageProcessor, processor
 
 # FastAPI
 from fastapi import FastAPI, UploadFile, HTTPException
@@ -11,14 +11,10 @@ from pydantic import BaseModel
 # from pymongo import MongoClient
 
 # Firebase Storage
-import firebase_admin
-from firebase_admin import credentials, storage
+from firebase import fireBaseStorage
 
 # Firebase Storage
-cred = credentials.Certificate('key/serviceKey.json')
-firebase_admin.initialize_app(cred)
-bucket = storage.bucket('infuser-7a7c8.appspot.com')
-
+bucket = fireBaseStorage.bucket
 
 # # DB
 # client = MongoClient(os.environ.get("MONGO_DB_PATH"))
@@ -116,10 +112,8 @@ class ImageFromFront(BaseModel):
 @app.post("/api/uploadtest")
 async def uploadimagetest(image: ImageFromFront):
     try:
-        file_name = str(uuid.uuid1())
-        
         #### 이미지 전처리
-        processor = ImageProcessor(ratio=0.5)
+        # processor = ImageProcessor(ratio=0.7)
         image = processor.clientToServerBase64(image.data)
         origin = processor.serverToClient(image)
         ####
@@ -142,11 +136,11 @@ async def uploadimagetest(image: ImageFromFront):
 
         #### Firebase Storage 저장
         # 원본
-        blob = bucket.blob('origins/'+ file_name + '.jpeg')
+        blob = bucket.blob('origins/'+ transformer.file_name + '.jpeg')
         blob.upload_from_string(origin, content_type='image/jpeg')
 
         # 처리
-        blob = bucket.blob('images/'+ file_name + '.jpeg')
+        blob = bucket.blob('images/'+ transformer.file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
         ####
 
