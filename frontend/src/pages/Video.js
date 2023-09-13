@@ -30,7 +30,6 @@ const Video = () => {
     const postImage = () => {
         const formData = new FormData()
         formData.append("file", imageObject.imageFile)
-
         axios.post(serviceUrl + "/upload", formData)
             .then((response) => {
                 // setReturnedImage(response.data);
@@ -61,7 +60,7 @@ const Video = () => {
                 />
             </label>
             <div>
-                <img src={imageObject.imagePreview} alt="result1" />
+                <img className="captured-img" src={imageObject.imagePreview} alt="result1" />
             </div>
             <div className="btn-box">
                 <button onClick={handleClick}>촬영</button>

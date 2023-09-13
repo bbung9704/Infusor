@@ -1,6 +1,4 @@
-img {
-    max-width: 480px;
-    max-height: 480px;
+.captured-img {
     object-fit: contain;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -13,7 +11,6 @@ img {
 }
 
 .btn-box{
-    max-width: 480px;
     display: flex;
 }
 

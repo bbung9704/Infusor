@@ -1,4 +1,4 @@
-import cv2, math, uuid
+import cv2, math, base64, io
 import numpy as np
 from pyzbar.pyzbar import decode
 from fastapi import HTTPException
@@ -22,6 +22,49 @@ class Transformer:
         
         else:
             raise HTTPException(status_code=400, detail='QRCode is not detected.')
+        
+    def drawPoint(self, image):
+        alpha = 0.7
+        image_copy = image.copy()
+        for idx, p in enumerate(self._points):
+            p = np.int32(p)
+            if idx == 0:
+                first = p
+                start = p
+            if idx == 3:
+                end, start = start, p
+                cv2.line(image, start, end, color=(0,0,255), thickness=3)
+                end, start = start, first
+                cv2.line(image, start, end, color=(0,0,255), thickness=3)
+            else:
+                end, start = start, p
+                cv2.line(image, start, end, color=(0,0,255), thickness=3)
+
+        image = cv2.addWeighted(image, alpha, image_copy, 1-alpha, 0)
+
+        return image
+    
+    def drawTransPoint(self, image):
+        alpha = 0.7
+        image_copy = image.copy()
+        for idx, p in enumerate(self._transPoints):
+            p = np.int32(p)
+            if idx == 0:
+                first = p
+                start = p
+            if idx == 3:
+                end, start = start, p
+                cv2.line(image, start, end, color=(0,255,0), thickness=3)
+                end, start = start, first
+                cv2.line(image, start, end, color=(0,255,0), thickness=3)
+            else:
+                end, start = start, p
+                cv2.line(image, start, end, color=(0,255,0), thickness=3)
+
+        image = cv2.addWeighted(image, alpha, image_copy, 1-alpha, 0)
+
+        return image
+    
         
     def Rotate(self, image):
         matrix = cv2.getRotationMatrix2D(center=self._minAreaRectCenter, angle=self._minAreaRectAngle, scale=1)
@@ -88,82 +131,16 @@ class ImageProcessor:
 
         return image_decoded
 
+    def clientToServerBase64(self, image):
+        image = base64.b64decode(image)
+        image = np.fromstring(image, dtype = np.uint8)
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+        image_decoded = cv2.resize(image, dsize=(0,0), fx=self.ratio, fy=self.ratio)
+
+        return image_decoded
+
     def serverToClient(self, image):
         _, enc_image = cv2.imencode('.jpeg', image)
         image_bytes = enc_image.tobytes()
 
         return image_bytes
-
-
-
-
-# def transform(img, option):
-#     # QR Code 인식 안되는 경우, Exception
-#     qrcode = decode(img)
-#     if len(qrcode) == 0:
-#         raise HTTPException(status_code=500, detail='QRCode is not detected.')
-
-#     # QRCode Edge points & Image size
-#     # *** Left-Top point부터 반시계 방향으로 point 표시
-#     height, width, _ = img.shape
-
-#     lt = qrcode[0].polygon[0]
-#     lb = qrcode[0].polygon[1]
-#     rb = qrcode[0].polygon[2]
-#     rt = qrcode[0].polygon[3]
-#     points = np.float32([[lt.x, lt.y], [lb.x, lb.y], [rb.x, rb.y], [rt.x, rt.y]])
-
-#     # minAreaRect 탐색
-#     trans_points = cv2.minAreaRect(points)
-#     minArea = trans_points
-#     trans_points = cv2.boxPoints(trans_points)
-
-#     # minAreaRect에 의한 boxPoint 방향이 제대로 안잡혀 생기는 trans_point 방향 문제 수정
-#     new_trans_points = [0, 0, 0, 0]
-#     fpoints = points.copy()
-#     for i in trans_points:
-#         short = math.sqrt(height^2 + width^2)
-#         id = 0
-#         for idx, j in enumerate(fpoints):
-#             d = distance(i, j)
-#             if d < short:
-#                 short = d
-#                 id = idx
-#         new_trans_points[id] = i
-#         np.delete(fpoints, id, 0)
-
-#     trans_points = np.array(new_trans_points)
-#     trans_points = np.float32(trans_points)
-
-#     # minAreaRect에 의한 angle이 특정각도 이상일 때, 90도 회전되는 문제 수정
-#     # *** minAreaRect가 뭔지 이해X
-#     if minArea[2] > 50:
-#         list_minArea = list(minArea)
-#         list_minArea[2] -= 90
-#         minArea = tuple(list_minArea)
-    
-#     # Affine Transform, Perspective Transform and Rotation
-#     match option:
-#         case 'aff':
-#             matrix = cv2.getAffineTransform(np.array([points[0], points[1], points[3]]), np.array([trans_points[0], trans_points[1], trans_points[3]]))
-#             dst = cv2.warpAffine(img, matrix, (width, height))
-#         case 'rot':
-#             matrix = cv2.getRotationMatrix2D(center=minArea[0], angle=minArea[2], scale=1)
-#             dst = cv2.warpAffine(img, matrix, (width, height))    
-#         case 'per':
-#             matrix = cv2.getPerspectiveTransform(points, trans_points)
-#             dst = cv2.warpPerspective(img, matrix, (width, height))
-
-#     return dst
-
-# # 이미지 전처리
-# def image_process(dst):
-#     _, enc_image = cv2.imencode('.jpeg', dst)
-#     image_bytes = enc_image.tobytes()
-
-#     return image_bytes
-
-# # 거리 계산
-# def distance(target, input):
-#     result = math.sqrt( math.pow(target[0] - input[0], 2) + math.pow(target[1] - input[1], 2))
-#     return result
