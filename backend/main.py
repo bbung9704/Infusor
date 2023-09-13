@@ -119,15 +119,9 @@ async def uploadimagetest(image: ImageFromFront):
         file_name = str(uuid.uuid1())
         
         #### 이미지 전처리
-        processor = ImageProcessor(ratio=1)
+        processor = ImageProcessor(ratio=0.5)
         image = processor.clientToServerBase64(image.data)
         origin = processor.serverToClient(image)
-        ####
-
-        #### 서버 직접 저장
-        image = processor.serverToClient(image)
-        with open(f"images/{file_name}.jpeg", "wb") as f:
-            f.write(image)
         ####
 
         #### Affine transform

@@ -43,7 +43,9 @@ const WebCam = () => {
             .then((response) => {
                 setImgSrc("data:image/jpeg;base64," + response.data)
             })
-            .catch((e) => {console.log(e.response.data.message)})
+            .catch((e) => {
+                alert(e.response.data.message);
+            })
     };
     
     useEffect(() => {
