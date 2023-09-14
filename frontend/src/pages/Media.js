@@ -58,6 +58,7 @@ const Media = () => {
         axios.post(serviceUrl + "/uploadtest", { data: capturedPhoto.split(',', 2)[1] })
             .then((response) => {
                 setCapturedPhoto("data:image/jpeg;base64," + response.data);
+                alert("Transformed image returned")
             })
             .catch((e) => {
                 alert(e.response.data.message);
