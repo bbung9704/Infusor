@@ -7,9 +7,9 @@ import scanning from '../images/scanning.png'
 const constraints = {
     video: {
         facingMode: 'environment',
-        width: { ideal: 4096 }, // 원하는 가로 해상도
-        height: { ideal: 2160 }, // 원하는 세로 해상도
-        aspectRatio: 3 / 4.
+        width: { ideal: 2560 }, // 원하는 가로 해상도
+        height: { ideal: 1440 }, // 원하는 세로 해상도
+        aspectRatio: 3/4.
     },
 };
 
@@ -21,14 +21,16 @@ const Media = () => {
     const [showVideo, setShowVideo] = useState(true);
 
     useEffect(() => {
-        navigator.mediaDevices
-            .getUserMedia(constraints)
-            .then((stream) => {
-                videoRef.current.srcObject = stream;
-            })
-            .catch((error) => {
-                console.error('Error accessing the webcam:', error);
-            });
+        if(showVideo) {
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then((stream) => {
+                    videoRef.current.srcObject = stream;
+                })
+                .catch((error) => {
+                    console.error('Error accessing the webcam:', error);
+                });
+        }
     }, [showVideo]);
 
     const capturePhoto = () => {
@@ -43,7 +45,6 @@ const Media = () => {
 
             // 캡처한 이미지를 데이터 URL로 저장
             const photoDataUrl = canvas.toDataURL('image/jpeg');
-            console.log(photoDataUrl);
             setCapturedPhoto(photoDataUrl);
             setShowVideo(false); // 비디오 숨기기
         }
