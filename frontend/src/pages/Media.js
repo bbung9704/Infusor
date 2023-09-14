@@ -9,7 +9,6 @@ const constraints = {
         facingMode: 'environment',
         width: { ideal: 2560 }, // 원하는 가로 해상도
         height: { ideal: 1440 }, // 원하는 세로 해상도
-        aspectRatio: 3/4.
     },
 };
 
@@ -86,7 +85,6 @@ const Media = () => {
                             src={capturedPhoto}
                             alt="Captured"
                         />
-                        {/* <button onClick={showVideoAgain} className='fixed-btn'>Show Video Again</button> */}
                     </div>
                 )}
                 {showVideo ? (<img src={scanning} alt="Overlay_Image" className="overlay-scan" />) : null}
