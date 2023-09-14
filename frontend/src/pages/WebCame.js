@@ -17,9 +17,10 @@ const WebCam = () => {
         height: window.innerHeight,
     });
     
+
     const videoConstraints = {
         facingMode: "environment",
-        aspectRatio: 1,
+        aspectRatio: 3/4,
     };
     
     const webcamStyle = {
@@ -73,9 +74,9 @@ const WebCam = () => {
                         screenshotFormat="image/jpeg"
                         videoConstraints={videoConstraints}
                         screenshotQuality={1}
-                        minScreenshotWidth={4096}
-                        minScreenshotHeight={4096}
                         mirrored={false}
+                        // minScreenshotWidth={windowSize.width * 2}
+                        // minScreenshotHeight={windowSize.width * 8/3}
                         style={webcamStyle}
                     />
                 )}
@@ -89,7 +90,7 @@ const WebCam = () => {
                     </div>
                 ) : (
                     <div className="btn-box">
-                    <button onClick={captureImage}>Capture photo</button>
+                    <button onClick={captureImage} className="capture-btn">Capture photo</button>
                     </div>
                 )}
             </div>

@@ -151,4 +151,4 @@ class ImageProcessor:
 
         return image_bytes
     
-processor = ImageProcessor(0.7)
+processor = ImageProcessor(1)

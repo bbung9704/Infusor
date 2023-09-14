@@ -1,0 +1,43 @@
+.video-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+}
+
+.video-print {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.fixed-btn {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 3%;
+  z-index: 3;
+}
+
+.camera-button {
+  display: flex;
+  background-color: #007bff; /* 배경색 */
+  color: #fff; /* 글자색 */
+  padding: 10px 20px; /* 여백 */
+  border: none; /* 테두리 없음 */
+  border-radius: 5px; /* 둥근 모서리 */
+  font-size: 16px; /* 글자 크기 */
+  cursor: pointer; /* 커서 스타일 */
+  margin: 10px;
+}
+
+.camera-button:hover {
+  background-color: #0056b3; /* 호버(마우스 오버) 시 배경색 변경 */
+}
+
+.overlay-scan {
+  width: 20%;
+  position: absolute;
+  z-index: 2;
+  opacity: 60%;
+}
