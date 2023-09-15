@@ -68,7 +68,7 @@ const Media = () => {
     };
 
     return (
-        <div className="App">
+        <div className='container'>
             <div className="video-container" ref={videoContainerRef}>
                 {showVideo ? (
                     <div>

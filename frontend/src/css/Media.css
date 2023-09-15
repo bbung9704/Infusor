@@ -1,12 +1,21 @@
+.container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .video-container {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center; 
+  max-width: 650px;
 }
 
 .video-print {
   width: 100%;
+  max-width: 650px;
 }
 
 .fixed-btn {
