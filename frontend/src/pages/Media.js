@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import axios from "axios";
 import serviceUrl from "../utils/Utils";
 import "../css/Media.css";
-import scanning from '../images/scanning.png'
+import VideoPrintCard from '../components/videoPrintCard';
 
 const constraints = {
     video: {
@@ -16,21 +16,30 @@ const constraints = {
 
 const Media = () => {
     const videoRef = useRef(null);
-    const videoContainerRef = useRef(null);
     const canvasRef = useRef(null);
     const [capturedPhoto, setCapturedPhoto] = useState(null);
     const [showVideo, setShowVideo] = useState(true);
 
     useEffect(() => {
+        let videoStream = null;
+
         if(showVideo) {
             navigator.mediaDevices
                 .getUserMedia(constraints)
                 .then((stream) => {
                     videoRef.current.srcObject = stream;
+                    videoStream = stream;
                 })
                 .catch((error) => {
                     console.error('Error accessing the webcam:', error);
                 });
+        }
+
+        return () => {
+            if(videoStream) {
+                videoStream.getTracks()[0].stop();
+                videoStream = null;
+            }
         }
     }, [showVideo]);
 
@@ -69,28 +78,7 @@ const Media = () => {
 
     return (
         <div className='container'>
-            <div className="video-container" ref={videoContainerRef}>
-                {showVideo ? (
-                    <div>
-                        <video
-                            className="video-print"
-                            ref={videoRef}
-                            autoPlay
-                            playsInline
-                            muted
-                        />
-                    </div>
-                ) : (
-                    <div>
-                        <img
-                            className="video-print"
-                            src={capturedPhoto}
-                            alt="Captured"
-                        />
-                    </div>
-                )}
-                {showVideo ? (<img src={scanning} alt="Overlay_Image" className="overlay-scan" />) : null}
-            </div>
+            <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} />
             <div className='fixed-btn'>
                 {showVideo ? <button onClick={capturePhoto} className='camera-button'>Capture Photo</button> : (<div>
                     <button onClick={postImage} className='camera-button'>Upload Photo</button>

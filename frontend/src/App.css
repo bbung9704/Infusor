@@ -40,15 +40,15 @@
 }
 
 .top-nav {
+  margin-left: 15px;
+  margin-right: 15px;
   height: 40px;
   display: flex;
-
-  text-align: center;
+  justify-content: space-between;
   align-items: center;
 }
 
-.nav-item {
-  margin-left: 15px;
-  margin-right: 15px;
-  font-size: large;
+.top-nav #myname {
+  font-size: 14px;
+  color: #888;
 }

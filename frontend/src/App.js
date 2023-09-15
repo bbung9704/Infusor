@@ -10,8 +10,8 @@ function App() {
   return (
     <div className="App">
       <nav className="top-nav">
-        <Link to="/" className="nav-item">Home</Link>
-        <Link to="/media" className="nav-item">Camera</Link>
+        <Link to="/"><h3>Infusor</h3></Link>
+        <div id='myname'>taeyoon.kim</div>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
