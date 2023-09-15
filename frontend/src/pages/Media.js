@@ -7,7 +7,9 @@ import scanning from '../images/scanning.png'
 const constraints = {
     video: {
         facingMode: 'environment',
-        width: { ideal: 2560 }, // 원하는 가로 해상도
+        // width: { ideal: 2560 }, // 원하는 가로 해상도
+        // height: { ideal: 1440 }, // 원하는 세로 해상도
+        width: { ideal: 1440 }, // 원하는 가로 해상도
         height: { ideal: 1440 }, // 원하는 세로 해상도
     },
 };
@@ -58,7 +60,7 @@ const Media = () => {
         axios.post(serviceUrl + "/uploadtest", { data: capturedPhoto.split(',', 2)[1] })
             .then((response) => {
                 setCapturedPhoto("data:image/jpeg;base64," + response.data);
-                alert("Transformed image returned")
+                alert("Transformed image is returned")
             })
             .catch((e) => {
                 alert(e.response.data.message);
