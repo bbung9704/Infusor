@@ -1,9 +1,7 @@
 import React from "react";
 import {Routes, Route, Link} from 'react-router-dom'
 
-import Home from "./pages/Home"
 import Media from "./pages/Media";
-import Test from "./pages/Test";
 
 import './App.css'
 
@@ -15,9 +13,7 @@ function App() {
         <div id='myname'>taeyoon.kim</div>
       </nav>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/media" element={<Media />} />
-        <Route path="/test" element={<Test />} />
+        <Route path="/" element={<Media />} />
       </Routes>
     </div>
   );
