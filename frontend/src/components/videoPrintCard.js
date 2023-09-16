@@ -1,4 +1,4 @@
-import VideoPrint from './videoPrint';
+import VideoPrint from './VideoPrint';
 
 const VideoPrintCard = ({showVideo, videoRef, capturedPhoto}) => {
 

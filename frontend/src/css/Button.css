@@ -1,0 +1,39 @@
+.camera-button {
+    background-color: darkgray;
+    border: 3px solid black;
+    border-radius: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 60px;
+    height: 60px;
+}
+
+.camera-button:hover {
+    background-color: gray;
+}
+
+#camera-icon {
+    display: block;
+    height: 100%;
+    width: auto;
+}
+
+.right-btn-set-modal {
+    display: flex;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    position: fixed;
+    background-color: whitesmoke;
+    bottom: 0%;
+    right: -160px;
+    transition: right 0.5s ease-in-out;
+    /* 슬라이딩 애니메이션 설정 */
+}
+
+.slide-in {
+    right: 0;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+}

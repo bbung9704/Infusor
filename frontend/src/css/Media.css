@@ -1,4 +1,3 @@
-
 .container {
   display: flex;
   justify-content: center;
@@ -47,11 +46,24 @@
 }
 
 .fixed-btn {
-  position: absolute;
+  position: fixed;
+  width: 100%;
   left: 50%;
   transform: translateX(-50%);
   bottom: 3%;
   z-index: 3;
+}
+
+.fixed-btn .fixed-btn-prev {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.fixed-btn .fixed-btn-next {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
 .camera-button {

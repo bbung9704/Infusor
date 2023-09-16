@@ -2,17 +2,25 @@ import React, { useRef, useEffect, useState } from 'react';
 import axios from "axios";
 import serviceUrl from "../utils/Utils";
 import "../css/Media.css";
-import VideoPrintCard from '../components/videoPrintCard';
+
+// icons
+import cameraIcon from "../images/camera-icon.png";
+
+// components
+import VideoPrintCard from '../components/VideoPrintCard';
+import CircleButton from '../components/CircleButton';
+import ButtonSetModal from '../components/ButtonSetModal';
+import ComponentsArray from '../components/ComponentsArray';
 
 const constraints = {
     video: {
         facingMode: 'environment',
-        // width: { ideal: 2560 }, // 원하는 가로 해상도
-        // height: { ideal: 1440 }, // 원하는 세로 해상도
         width: { ideal: 1440 }, // 원하는 가로 해상도
         height: { ideal: 1440 }, // 원하는 세로 해상도
     },
 };
+
+
 
 const Media = () => {
     const videoRef = useRef(null);
@@ -20,28 +28,6 @@ const Media = () => {
     const [capturedPhoto, setCapturedPhoto] = useState(null);
     const [showVideo, setShowVideo] = useState(true);
 
-    useEffect(() => {
-        let videoStream = null;
-
-        if(showVideo) {
-            navigator.mediaDevices
-                .getUserMedia(constraints)
-                .then((stream) => {
-                    videoRef.current.srcObject = stream;
-                    videoStream = stream;
-                })
-                .catch((error) => {
-                    console.error('Error accessing the webcam:', error);
-                });
-        }
-
-        return () => {
-            if(videoStream) {
-                videoStream.getTracks()[0].stop();
-                videoStream = null;
-            }
-        }
-    }, [showVideo]);
 
     const capturePhoto = () => {
         const video = videoRef.current;
@@ -76,14 +62,47 @@ const Media = () => {
             })
     };
 
+    const fns = ComponentsArray.setButtonSetModalComponentsFn([showVideoAgain, postImage]);
+
+    useEffect(() => {
+        let videoStream = null;
+
+        if (showVideo) {
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then((stream) => {
+                    videoRef.current.srcObject = stream;
+                    videoStream = stream;
+                })
+                .catch((error) => {
+                    console.error('Error accessing the webcam:', error);
+                });
+        }
+
+        return () => {
+            if (videoStream) {
+                videoStream.getTracks()[0].stop();
+                videoStream = null;
+            }
+        }
+    }, [showVideo]);
+
     return (
         <div className='container'>
             <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} />
             <div className='fixed-btn'>
-                {showVideo ? <button onClick={capturePhoto} className='camera-button'>Capture Photo</button> : (<div>
-                    <button onClick={postImage} className='camera-button'>Upload Photo</button>
-                    <button onClick={showVideoAgain} className='camera-button'>Retake Photo</button>
-                </div>)}
+                {
+                    <div>
+                        {
+                            showVideo ? (<div className='fixed-btn-prev'>
+                            <CircleButton fn={capturePhoto} icon={cameraIcon} />
+                        </div>) : null
+                        }
+                        <div className='fixed-btn-next'>
+                            <ButtonSetModal components={fns} isShow={showVideo} />
+                        </div>
+                    </div>
+                }
             </div>
             <canvas ref={canvasRef} style={{ display: 'none' }} />
         </div>
