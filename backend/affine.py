@@ -24,9 +24,9 @@ class Transformer:
             self._setTransPoints()
         
         else:
-            image = processor.serverToClient(self._image)
-            blob = bucket.blob('fail/'+ self.file_name + '.jpeg')
-            blob.upload_from_string(image, content_type='image/jpeg')
+            # image = processor.serverToClient(self._image)
+            # blob = bucket.blob('fail/'+ self.file_name + '.jpeg')
+            # blob.upload_from_string(image, content_type='image/jpeg')
             raise HTTPException(status_code=400, detail='QRCode is not detected.')
         
     def drawPoint(self, image):
@@ -71,6 +71,13 @@ class Transformer:
 
         return image
     
+    def MoveQrToCenter(self, image):
+        dx = self._width/2 - self._minAreaRectCenter[0]
+        dy = self._height/2 - self._minAreaRectCenter[1]
+        matrix = np.float32([[1,0,dx], [0,1,dy]])
+        result = cv2.warpAffine(image, matrix, (self._width, self._height))
+
+        return result
         
     def Rotate(self, image):
         matrix = cv2.getRotationMatrix2D(center=self._minAreaRectCenter, angle=self._minAreaRectAngle, scale=1)
@@ -87,6 +94,20 @@ class Transformer:
         result = cv2.warpPerspective(image, matrix, (self._width, self._height))
         return result
     
+    def MakeConstantQr(self, image):
+        base_size = (self._width, self._height, 3)
+        base = np.zeros(base_size, np.uint8)
+        ratio = 100. / np.average(self._minAreaRect[1])
+        resized_img = cv2.resize(image, dsize=(0,0), fx=ratio, fy=ratio)
+        base[int(base_size[1]/2 - resized_img.shape[1]/2) : int(base_size[1]/2 + resized_img.shape[1]/2), 
+             int(base_size[0]/2 - resized_img.shape[0]/2) : int(base_size[0]/2 + resized_img.shape[0]/2)] = resized_img
+        return base
+    
+    def CropInfusor(self, image):
+        result = image[np.int32(self._height * 2/8) : np.int32(self._height * 6/8), 
+                np.int32(self._width * 3/8) : np.int32(self._width * 5/8)]
+        return result
+        
     def _setPoints(self):
         lt = self.qrcode[0].polygon[0]
         lb = self.qrcode[0].polygon[1]
@@ -151,4 +172,4 @@ class ImageProcessor:
 
         return image_bytes
     
-processor = ImageProcessor(0.5)
+processor = ImageProcessor(1)

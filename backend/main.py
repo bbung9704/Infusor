@@ -120,13 +120,15 @@ async def uploadimagetest(image: ImageFromFront):
 
         #### Affine transform
         transformer = Transformer(image)
-        print(transformer._width, transformer._height)
-        aff = transformer.Affine(transformer._image)
+        centered = transformer.MoveQrToCenter(transformer._image)
+        aff = transformer.Affine(centered)
         affrot = transformer.Rotate(aff)
+        constant = transformer.MakeConstantQr(affrot)
+        crop = transformer.CropInfusor(constant)
         ####
 
         #### 이미지 후처리
-        image = processor.serverToClient(affrot)
+        image = processor.serverToClient(crop)
         ####
 
         # #### 서버 직접 저장
