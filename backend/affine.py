@@ -29,6 +29,27 @@ class Transformer:
             # blob.upload_from_string(image, content_type='image/jpeg')
             raise HTTPException(status_code=400, detail='QR코드를 인식할 수 없습니다.')
         
+    def reset(self, image):
+        self._image = image
+        self._height, self._width, self._channel = self._image.shape
+        self.qrcode = decode(self._image) # Detect 안되면 qrcode = []
+        self._points = None
+        self._transPoints = None
+        self._minAreaRect = None
+        self._minAreaRectCenter = None
+        self._minAreaRectAngle = None
+
+        if self.qrcode:
+            self._setPoints()
+            self._setMinAreaRect()
+            self._setTransPoints()
+        
+        else:
+            # image = processor.serverToClient(self._image)
+            # blob = bucket.blob('fail/'+ self.file_name + '.jpeg')
+            # blob.upload_from_string(image, content_type='image/jpeg')
+            raise HTTPException(status_code=400, detail='QR코드를 인식할 수 없습니다.')
+        
     def drawPoint(self, image):
         alpha = 0.7
         image_copy = image.copy()
@@ -98,13 +119,18 @@ class Transformer:
         base_size = (self._width, self._height, 3)
         base = np.zeros(base_size, np.uint8)
         target_length = 100.
-        side_length = np.average(self._minAreaRect[1])
-        if side_length < target_length:
+        width = self.qrcode[0].rect.width
+        height = self.qrcode[0].rect.height
+
+        if width < target_length or height < target_length:
             raise HTTPException(status_code=400, detail='QR코드가 너무 멀리 있습니다.')
-        ratio = target_length / side_length
-        resized_img = cv2.resize(image, dsize=(0,0), fx=ratio, fy=ratio)
-        base[int(base_size[1]/2 - resized_img.shape[1]/2) : int(base_size[1]/2 + resized_img.shape[1]/2), 
-             int(base_size[0]/2 - resized_img.shape[0]/2) : int(base_size[0]/2 + resized_img.shape[0]/2)] = resized_img
+
+        fx = target_length / width
+        fy = target_length / height
+        resized_img = cv2.resize(image, dsize=(0,0), fx=fx, fy=fy)
+
+        base[int(base_size[1]/2 - resized_img.shape[0]/2) : int(base_size[1]/2 + resized_img.shape[0]/2), 
+             int(base_size[0]/2 - resized_img.shape[1]/2) : int(base_size[0]/2 + resized_img.shape[1]/2)] = resized_img
         return base
     
     def CropInfusor(self, image):

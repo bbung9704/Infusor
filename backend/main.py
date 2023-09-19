@@ -119,12 +119,13 @@ async def uploadimagetest(image: ImageFromFront):
         ####
 
         #### Affine transform
-        transformer = Transformer(image)
-        centered = transformer.MoveQrToCenter(transformer._image)
-        aff = transformer.Affine(centered)
-        affrot = transformer.Rotate(aff)
-        constant = transformer.MakeConstantQr(affrot)
-        crop = transformer.CropInfusor(constant)
+        t = Transformer(image)
+        centered = t.MoveQrToCenter(t._image)
+        aff = t.Perspective(centered)
+        affrot = t.Rotate(aff)
+        t.reset(affrot)
+        constant = t.MakeConstantQr(t._image)
+        crop = t.CropInfusor(constant)
         ####
 
         #### 이미지 후처리
@@ -138,11 +139,11 @@ async def uploadimagetest(image: ImageFromFront):
 
         #### Firebase Storage 저장
         # 원본
-        blob = bucket.blob('origins/'+ transformer.file_name + '.jpeg')
+        blob = bucket.blob('origins/'+ t.file_name + '.jpeg')
         blob.upload_from_string(origin, content_type='image/jpeg')
 
         # 처리
-        blob = bucket.blob('images/'+ transformer.file_name + '.jpeg')
+        blob = bucket.blob('images/'+ t.file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
         ####
 

@@ -12,9 +12,12 @@ for file in files:
     transformer = Transformer(img)
 
     centered = transformer.MoveQrToCenter(transformer._image)
-    aff = transformer.Affine(centered)
+    aff = transformer.Perspective(centered)
     affrot = transformer.Rotate(aff)
+
+    transformer.reset(affrot)
     constant = transformer.MakeConstantQr(affrot)
+
     crop = transformer.CropInfusor(constant)
 
     cv2.imshow('image', crop)
