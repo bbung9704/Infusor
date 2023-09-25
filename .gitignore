@@ -480,3 +480,10 @@ archive.zip
 .cache
 
 serviceKey.json
+
+datasets/
+imgs/
+legacy_img/
+test.m/
+capture.py
+test.m

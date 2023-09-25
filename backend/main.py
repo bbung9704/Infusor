@@ -117,7 +117,6 @@ async def uploadimagetest(image: ImageFromFront):
         #### 이미지 전처리
         # processor = ImageProcessor(ratio=0.7)
         image = processor.clientToServerBase64(image.data)
-        origin = processor.serverToClient(image)
         ####
 
         #### Affine transform
@@ -135,26 +134,27 @@ async def uploadimagetest(image: ImageFromFront):
         image = processor.serverToClient(crop)
         ####
 
-        #### 서버 직접 저장
-        with open(f"images/out.jpeg", "wb") as f:
-            f.write(image)
-        ####
+        # #### 서버 직접 저장
+        # with open(f"images/out.jpeg", "wb") as f:
+        #     f.write(image)
+        # ####
 
-        #### 23/09/25/18:46 타입 확인
+        #### 23/09/25/18:46 ML 모델 사용
         unet = Unet()
-        pred = unet.getPrediction(f"images/out.jpeg")
+        pred = unet.getPrediction(crop)
         pred = cv2.resize(pred, dsize=(360,720))
         pred = processor.serverToClient(pred)
         ####
 
         #### Firebase Storage 저장
-        # # 원본
-        # blob = bucket.blob('origins/'+ t.file_name + '.jpeg')
-        # blob.upload_from_string(origin, content_type='image/jpeg')
 
         # Transform
         blob = bucket.blob('images/'+ t.file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
+        blob.make_public()
+        
+        #
+
 
         # Transform
         blob = bucket.blob('predict/'+ t.file_name + '.jpeg')
