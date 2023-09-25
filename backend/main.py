@@ -1,5 +1,7 @@
 import uuid, base64
 from affine import Transformer, ImageProcessor, processor
+from ml import Unet
+import time, cv2
 
 # FastAPI
 from fastapi import FastAPI, UploadFile, HTTPException
@@ -127,15 +129,16 @@ async def uploadimagetest(image: ImageFromFront):
         constant = t.MakeConstantQr(t._image)
         crop = t.CropInfusor(constant)
         ####
-
+        
+        
         #### 이미지 후처리
         image = processor.serverToClient(crop)
         ####
 
-        # #### 서버 직접 저장
-        # with open(f"images/{file_name}.jpeg", "wb") as f:
-        #     f.write(image)
-        # ####
+        #### 서버 직접 저장
+        with open(f"images/{t.file_name}.jpeg", "wb") as f:
+            f.write(image)
+        ####
 
         #### Firebase Storage 저장
         # 원본
@@ -145,10 +148,22 @@ async def uploadimagetest(image: ImageFromFront):
         # 처리
         blob = bucket.blob('images/'+ t.file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
+        blob.make_public()
+        ####
+
+        #### 23/09/25/18:46 타입 확인
+        start = time.time()
+        unet = Unet()
+        pred = unet.getPrediction(f"images/{t.file_name}.jpeg")
+        pred = cv2.resize(pred, dsize=(360,720))
+        end = time.time()
+        print(f"delta time: {end-start}")
+        pred = processor.serverToClient(pred)
         ####
 
         #### base64 인코딩
-        image = base64.b64encode(image)
+        # image = base64.b64encode(image)
+        image = base64.b64encode(pred)
         ####
 
         return Response(image)

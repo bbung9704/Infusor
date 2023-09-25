@@ -1,10 +1,10 @@
 import cv2, os
-import numpy as np
 from affine import Transformer
 
 ratio = 1
-root = "images/"
-files = os.listdir("images/")
+# root = "images/"
+root = "../img_test/"
+files = os.listdir(root)
 
 for file in files:
     img_dir = root + file
