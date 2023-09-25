@@ -27,6 +27,7 @@ const Media = () => {
     const canvasRef = useRef(null);
     const [capturedPhoto, setCapturedPhoto] = useState(null);
     const [showVideo, setShowVideo] = useState(true);
+    const [processTime, setProcessTime] = useState(0);
 
 
     const capturePhoto = () => {
@@ -49,17 +50,23 @@ const Media = () => {
     const showVideoAgain = () => {
         setShowVideo(true);
         setCapturedPhoto(null); // 이미지 제거는 비디오를 다시 보이게 한 다음에 수행
+        setProcessTime(0);
     };
 
     const postImage = () => {
+        let start = new Date();
         axios.post(serviceUrl + "/uploadtest", { data: capturedPhoto.split(',', 2)[1] })
             .then((response) => {
-                setCapturedPhoto("data:image/jpeg;base64," + response.data);
+                console.log(response.data)
+                setCapturedPhoto(response.data);
+                setProcessTime(new Date() - start);
                 alert("Transformed image is returned")
             })
             .catch((e) => {
+                setProcessTime(new Date() - start);
                 alert(e.response.data.message);
-            })
+            });
+        
     };
 
     const fns = ComponentsArray.setButtonSetModalComponentsFn([showVideoAgain, postImage]);
@@ -89,7 +96,7 @@ const Media = () => {
 
     return (
         <div className='container'>
-            <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} />
+            <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} processTime={processTime} />
             <div className='fixed-btn'>
                 {
                     <div>

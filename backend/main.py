@@ -136,37 +136,40 @@ async def uploadimagetest(image: ImageFromFront):
         ####
 
         #### 서버 직접 저장
-        with open(f"images/{t.file_name}.jpeg", "wb") as f:
+        with open(f"images/out.jpeg", "wb") as f:
             f.write(image)
         ####
 
-        #### Firebase Storage 저장
-        # 원본
-        blob = bucket.blob('origins/'+ t.file_name + '.jpeg')
-        blob.upload_from_string(origin, content_type='image/jpeg')
-
-        # 처리
-        blob = bucket.blob('images/'+ t.file_name + '.jpeg')
-        blob.upload_from_string(image, content_type='image/jpeg')
-        blob.make_public()
-        ####
-
         #### 23/09/25/18:46 타입 확인
-        start = time.time()
         unet = Unet()
-        pred = unet.getPrediction(f"images/{t.file_name}.jpeg")
+        pred = unet.getPrediction(f"images/out.jpeg")
         pred = cv2.resize(pred, dsize=(360,720))
-        end = time.time()
-        print(f"delta time: {end-start}")
         pred = processor.serverToClient(pred)
         ####
 
-        #### base64 인코딩
-        # image = base64.b64encode(image)
-        image = base64.b64encode(pred)
+        #### Firebase Storage 저장
+        # # 원본
+        # blob = bucket.blob('origins/'+ t.file_name + '.jpeg')
+        # blob.upload_from_string(origin, content_type='image/jpeg')
+
+        # Transform
+        blob = bucket.blob('images/'+ t.file_name + '.jpeg')
+        blob.upload_from_string(image, content_type='image/jpeg')
+
+        # Transform
+        blob = bucket.blob('predict/'+ t.file_name + '.jpeg')
+        blob.upload_from_string(pred, content_type='image/jpeg')
+        blob.make_public()
         ####
 
-        return Response(image)
+
+        # #### base64 인코딩
+        # # image = base64.b64encode(image)
+        # image = base64.b64encode(pred)
+        # ####
+
+        # return Response(image)
+        return Response(blob.public_url)
 
     except HTTPException as e:
         return JSONResponse( status_code=404, content={ 'message': e.detail } )

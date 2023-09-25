@@ -1,12 +1,12 @@
 import VideoPrint from './VideoPrint';
 
-const VideoPrintCard = ({showVideo, videoRef, capturedPhoto}) => {
+const VideoPrintCard = ({showVideo, videoRef, capturedPhoto, processTime}) => {
 
     return (
         <div className="video-container-box">
             <div className='video-container-box-title'>
                 <div>QR Code Scanner</div>
-                <div>Status</div>
+                <div>{'응답시간: ' + (processTime * 0.001).toFixed(3).toString() + 's'}</div>
             </div>
             <VideoPrint showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} />
             <div className='video-container-box-bottom'>
