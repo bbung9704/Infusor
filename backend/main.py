@@ -51,6 +51,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#### Model
+class ImageFromFront(BaseModel):
+    data: str
+####
+
 @app.get("/api")
 async def root():
     try:
@@ -61,47 +66,55 @@ async def root():
 
 
 @app.post("/api/upload")
-async def uploadimage(file: UploadFile):
+async def uploadimage(image: ImageFromFront):
     try:
-        image = await file.read()
-        file_name = str(uuid.uuid1())
-        
         #### 이미지 전처리
-        processor = ImageProcessor()
-        image = processor.clientToServer(image)
+        # processor = ImageProcessor(ratio=1)
+        image = processor.clientToServerBase64(image.data)
         origin = processor.serverToClient(image)
         ####
 
-        #### Affine transform
-        transformer = Transformer(image)
-        aff = transformer.Affine(transformer._image)
-        affrot = transformer.Rotate(aff)
+        #### Transform
+        t = Transformer(image)
+        centered = t.MoveQrToCenter(t._image)
+        aff = t.Perspective(centered) # or t.Affine(centered)
+        affrot = t.Rotate(aff)
+        t.reDetectQrCoordinate(affrot)
+        constant = t.MakeConstantQr(t._image)
+        crop = t.CropInfusor(constant)
         ####
-
+        
+        
         #### 이미지 후처리
-        image = processor.serverToClient(affrot)
+        image = processor.serverToClient(crop)
         ####
 
-        ### 서버 직접 저장
-        # with open(f"images/{file_name}.jpeg", "wb") as f:
-        #     f.write(image)
-        ###
+        # #### 23/09/25/18:46 ML 모델 사용
+        # unet = Unet()
+        # pred = unet.getPrediction(crop)
+        # pred = cv2.resize(pred, dsize=(360,720))
+        # pred[np.where((pred==[255, 255, 255]).all(axis=2))] = [0, 0, 255]
+        # pred = cv2.addWeighted(crop, 0.7, pred, 0.3, 0)
+        # pred = processor.serverToClient(pred)
+        # ####
 
         #### Firebase Storage 저장
-        # 원본
-        blob = bucket.blob('origins/'+ file_name + '.jpeg')
+        # Origin
+        blob = bucket.blob('origin/'+ t.file_name + '.jpeg')
         blob.upload_from_string(origin, content_type='image/jpeg')
 
-        # 처리
-        blob = bucket.blob('images/'+ file_name + '.jpeg')
+        # Transformed
+        blob = bucket.blob('images/'+ t.file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
-        ####
+        blob.make_public()
+        
+        # # ML Pred with mask
+        # blob = bucket.blob('predict/'+ t.file_name + '.jpeg')
+        # blob.upload_from_string(pred, content_type='image/jpeg')
+        # blob.make_public()
+        # ####
 
-        #### base64 인코딩
-        image = base64.b64encode(image)
-        ####
-
-        return Response(image)
+        return Response(blob.public_url)
 
     except HTTPException as e:
         return JSONResponse( status_code=404, content={ 'message': e.detail } )
@@ -109,8 +122,6 @@ async def uploadimage(file: UploadFile):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=404)
 
-class ImageFromFront(BaseModel):
-    data: str
 
 @app.post("/api/uploadtest")
 async def uploadimagetest(image: ImageFromFront):
