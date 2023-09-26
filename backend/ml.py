@@ -26,7 +26,8 @@ class Unet:
             out_fname="images/out.png"
         )
         # 0~255로 변환
+        out = np.array(out, dtype=np.uint8)
+        out = np.repeat(out[:,:,np.newaxis],3,-1)
         out *= 255
-        out = np.array(out, np.uint8)
         
         return out

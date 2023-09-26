@@ -57,7 +57,6 @@ const Media = () => {
         let start = new Date();
         axios.post(serviceUrl + "/uploadtest", { data: capturedPhoto.split(',', 2)[1] })
             .then((response) => {
-                console.log(response.data)
                 setCapturedPhoto(response.data);
                 setProcessTime(new Date() - start);
                 alert("Transformed image is returned")

@@ -1,7 +1,8 @@
 import uuid, base64
 from affine import Transformer, ImageProcessor, processor
 from ml import Unet
-import time, cv2
+import cv2
+import numpy as np
 
 # FastAPI
 from fastapi import FastAPI, UploadFile, HTTPException
@@ -115,16 +116,17 @@ class ImageFromFront(BaseModel):
 async def uploadimagetest(image: ImageFromFront):
     try:
         #### 이미지 전처리
-        # processor = ImageProcessor(ratio=0.7)
+        # processor = ImageProcessor(ratio=1)
         image = processor.clientToServerBase64(image.data)
+        origin = processor.serverToClient(image)
         ####
 
-        #### Affine transform
+        #### Transform
         t = Transformer(image)
         centered = t.MoveQrToCenter(t._image)
-        aff = t.Perspective(centered)
+        aff = t.Perspective(centered) # or t.Affine(centered)
         affrot = t.Rotate(aff)
-        t.reset(affrot)
+        t.reDetectQrCoordinate(affrot)
         constant = t.MakeConstantQr(t._image)
         crop = t.CropInfusor(constant)
         ####
@@ -134,41 +136,31 @@ async def uploadimagetest(image: ImageFromFront):
         image = processor.serverToClient(crop)
         ####
 
-        # #### 서버 직접 저장
-        # with open(f"images/out.jpeg", "wb") as f:
-        #     f.write(image)
-        # ####
-
         #### 23/09/25/18:46 ML 모델 사용
         unet = Unet()
         pred = unet.getPrediction(crop)
         pred = cv2.resize(pred, dsize=(360,720))
+        pred[np.where((pred==[255, 255, 255]).all(axis=2))] = [0, 0, 255]
+        pred = cv2.addWeighted(crop, 0.7, pred, 0.3, 0)
         pred = processor.serverToClient(pred)
         ####
 
         #### Firebase Storage 저장
+        # Origin
+        blob = bucket.blob('origin/'+ t.file_name + '.jpeg')
+        blob.upload_from_string(origin, content_type='image/jpeg')
 
-        # Transform
+        # Transformed
         blob = bucket.blob('images/'+ t.file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
         blob.make_public()
         
-        #
-
-
-        # Transform
+        # ML Pred with mask
         blob = bucket.blob('predict/'+ t.file_name + '.jpeg')
         blob.upload_from_string(pred, content_type='image/jpeg')
         blob.make_public()
         ####
 
-
-        # #### base64 인코딩
-        # # image = base64.b64encode(image)
-        # image = base64.b64encode(pred)
-        # ####
-
-        # return Response(image)
         return Response(blob.public_url)
 
     except HTTPException as e:

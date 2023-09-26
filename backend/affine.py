@@ -29,7 +29,7 @@ class Transformer:
             # blob.upload_from_string(image, content_type='image/jpeg')
             raise HTTPException(status_code=400, detail='QR코드를 인식할 수 없습니다.')
         
-    def reset(self, image):
+    def reDetectQrCoordinate(self, image):
         self._image = image
         self._height, self._width, self._channel = self._image.shape
         self.qrcode = decode(self._image) # Detect 안되면 qrcode = []
