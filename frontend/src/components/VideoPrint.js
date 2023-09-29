@@ -1,6 +1,7 @@
 import scanning from '../images/scanning.png'
+import spinner from '../images/spinner.gif';
 
-const VideoPrint = ({showVideo, videoRef, capturedPhoto}) => {
+const VideoPrint = ({showVideo, videoRef, capturedPhoto, isLoading}) => {
 
     return (
         <div className="video-container">
@@ -17,13 +18,14 @@ const VideoPrint = ({showVideo, videoRef, capturedPhoto}) => {
                 ) : (
                     <div>
                         <img
-                            className="video-print"
+                            className={`video-print ${isLoading ? 'opacity' : ''}`} 
                             src={capturedPhoto}
                             alt="Captured"
                         />
                     </div>
                 )}
                 {showVideo ? (<img src={scanning} alt="Overlay_Image" className="overlay-scan" />) : null}
+                {isLoading ? (<img src={spinner} alt="spinner" className="overlay-scan" />) : null}
             </div>
     );
 };

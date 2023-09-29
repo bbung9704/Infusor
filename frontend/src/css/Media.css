@@ -47,6 +47,10 @@
   object-fit: contain;
 }
 
+.opacity {
+  filter: brightness(70%);
+}
+
 .fixed-btn {
   position: fixed;
   width: 100%;
