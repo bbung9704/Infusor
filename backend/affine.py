@@ -1,15 +1,17 @@
-import cv2, math, base64, uuid
+import cv2, math, base64
+from datetime import datetime, timezone, timedelta
 import numpy as np
 from pyzbar.pyzbar import decode
 from fastapi import HTTPException
 from firebase import fireBaseStorage
+
 
 bucket = fireBaseStorage.bucket
 
 class Transformer:
     def __init__(self, image):
         self._image = image
-        self.file_name = str(uuid.uuid1())
+        self.file_name = datetime.now(timezone(timedelta(hours=9))).strftime("%Y%m%d_%H%M%S_%f")[:-4]
         self._height, self._width, self._channel = self._image.shape
         self.qrcode = decode(self._image) # Detect 안되면 qrcode = []
         self._points = None

@@ -65,6 +65,7 @@ async def root():
         return e
 
 
+# 이미지 변형만 출력
 @app.post("/api/upload")
 async def uploadimage(image: ImageFromFront):
     try:
@@ -123,6 +124,7 @@ async def uploadimage(image: ImageFromFront):
         return JSONResponse(content={"error": str(e)}, status_code=404)
 
 
+# ML 모델 예측 포함 출력
 @app.post("/api/uploadtest")
 async def uploadimagetest(image: ImageFromFront):
     try:
@@ -157,14 +159,14 @@ async def uploadimagetest(image: ImageFromFront):
         ####
 
         #### Firebase Storage 저장
-        # Origin
-        blob = bucket.blob('origin/'+ t.file_name + '.jpeg')
-        blob.upload_from_string(origin, content_type='image/jpeg')
+        # # Origin
+        # blob = bucket.blob('origin/'+ t.file_name + '.jpeg')
+        # blob.upload_from_string(origin, content_type='image/jpeg')
 
         # Transformed
         blob = bucket.blob('images/'+ t.file_name + '.jpeg')
         blob.upload_from_string(image, content_type='image/jpeg')
-        blob.make_public()
+        # blob.make_public()
         
         # ML Pred with mask
         blob = bucket.blob('predict/'+ t.file_name + '.jpeg')
