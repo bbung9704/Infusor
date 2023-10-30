@@ -1,6 +1,6 @@
 import uuid, base64
 from affine import Transformer, ImageProcessor, processor
-from ml import Unet
+from ml_model.ml import Unet
 import cv2
 import numpy as np
 
@@ -55,6 +55,7 @@ app.add_middleware(
 class ImageFromFront(BaseModel):
     data: str
 ####
+
 
 @app.get("/api")
 async def root():
@@ -150,6 +151,18 @@ async def uploadimagetest(image: ImageFromFront):
         ####
 
         #### 23/09/25/18:46 ML 모델 사용
+        
+        # ## 감마 보정
+        # crop_cp = crop.copy()
+        # crop_cp = np.array(crop_cp, np.float32)
+        # crop_cp = ((crop_cp / 255) ** 2) * 255
+        # crop_cp = np.array(crop_cp, np.uint8)
+        # ##
+
+        ## image Resize (736, 384, 3)
+        # crop_cp = cv2.resize(crop, (384,736))
+        ##
+
         unet = Unet()
         pred = unet.getPrediction(crop)
         pred = cv2.resize(pred, dsize=(360,720))
@@ -164,8 +177,8 @@ async def uploadimagetest(image: ImageFromFront):
         # blob.upload_from_string(origin, content_type='image/jpeg')
 
         # Transformed
-        blob = bucket.blob('images/'+ t.file_name + '.jpeg')
-        blob.upload_from_string(image, content_type='image/jpeg')
+        # blob = bucket.blob('images/'+ t.file_name + '.jpeg')
+        # blob.upload_from_string(image, content_type='image/jpeg')
         # blob.make_public()
         
         # ML Pred with mask
