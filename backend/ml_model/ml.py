@@ -35,7 +35,7 @@ class Unet:
     def getPrediction(self, img_root):
         ## tf
         img = cv2.resize(img_root, dsize=(384, 736))
-        # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         img = ((img / 255) ** 1.5) * 255        # 감마 보정
         img = np.array(img[np.newaxis, :, :])
