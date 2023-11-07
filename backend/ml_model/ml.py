@@ -20,7 +20,7 @@ class Unet:
         ## tf
         self.input_shape = (736, 384, 3)
         self.model = DeepLabV3Plus(self.input_shape, num_classes=1)
-        self.model.load_weights("ckp/DeepLabV3Plus_70.h5")
+        self.model.load_weights("ckp/DeepLabV3Plus_75_try9.h5")
 
     def output2image(self, imgs):
         img = imgs[0]
