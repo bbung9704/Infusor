@@ -489,3 +489,6 @@ capture.py
 test.m
 
 utils/
+
+*.pdf
+*.pptx

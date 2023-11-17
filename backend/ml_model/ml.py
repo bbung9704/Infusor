@@ -15,21 +15,24 @@ def singleton(class_):
 
 
 @singleton
-class Unet:
+class ML_Model:
     def __init__(self):
         ## tf
         self.input_shape = (736, 384, 3)
         self.model = DeepLabV3Plus(self.input_shape, num_classes=1)
         self.model.load_weights("ckp/DeepLabV3Plus_75_try9.h5")
 
-    def output2image(self, imgs):
+    def output2binary(self, imgs):
         img = imgs[0]
         img = np.array(img)
         img[img >= 0.5] = 1
         img[img < 0.5] = 0
-        img *= 255
         img = np.repeat(img, 3, -1)
         img = np.array(img, np.uint8)
+        return img
+
+    def binary2color(self,img):
+        img *= 255
         return img
 
     def getPrediction(self, img_root):
@@ -37,20 +40,10 @@ class Unet:
         img = cv2.resize(img_root, dsize=(384, 736))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-        img = ((img / 255) ** 1.5) * 255        # 감마 보정
+        img = ((img / 255) ** 1.5) * 255        # 감마 보정 -> 모델 정확도 높히기 위해 인풋 이미지의 contrast 높임.
         img = np.array(img[np.newaxis, :, :])
 
         out = self.model(img)
-        out = self.output2image(out)
-        ##
+        out = self.output2binary(out)
 
-        # out = self.model.predict_segmentation(
-        #     inp = img_root,
-        #     out_fname="images/out.png"
-        # )
-        # # 0~255로 변환
-        # out = np.array(out, dtype=np.uint8)
-        # out = np.repeat(out[:,:,np.newaxis],3,-1)
-        # out *= 255
-        
         return out

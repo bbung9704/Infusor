@@ -28,6 +28,7 @@ const Media = () => {
     const [capturedPhoto, setCapturedPhoto] = useState(null);
     const [showVideo, setShowVideo] = useState(true);
     const [processTime, setProcessTime] = useState(0);
+    const [predictVolume, setPredictVolume] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
 
@@ -52,16 +53,19 @@ const Media = () => {
         setShowVideo(true);
         setCapturedPhoto(null); // 이미지 제거는 비디오를 다시 보이게 한 다음에 수행
         setProcessTime(0);
+        setPredictVolume(0);
     };
 
     const postImage = () => {
         let start = new Date();
         setIsLoading(true);
-        axios.post(serviceUrl + "/uploadtest", { data: capturedPhoto.split(',', 2)[1] })
+        axios.post(serviceUrl + "/upload", { data: capturedPhoto.split(',', 2)[1] }) // binary로 변환하여 보냄.
             .then((response) => {
                 setIsLoading(false);
-                setCapturedPhoto(response.data);
+                setCapturedPhoto(response.data.url);
                 setProcessTime(new Date() - start);
+                console.log(response.data.volume)
+                setPredictVolume(response.data.volume);
             })
             .catch((e) => {
                 setIsLoading(false);
@@ -98,7 +102,7 @@ const Media = () => {
 
     return (
         <div className='container'>
-            <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} processTime={processTime} isLoading={isLoading} />
+            <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} processTime={processTime} predictVolume={predictVolume} isLoading={isLoading} />
             <div className='fixed-btn'>
                 {
                     <div>

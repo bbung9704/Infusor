@@ -1,26 +1,36 @@
 import cv2, os
-from affine import Transformer
+import numpy as np
 
-ratio = 1
-# root = "images/"
-root = "../img_test/"
-files = os.listdir(root)
+def cal_iou(tgt_np, compare):
+    overlap = tgt_np * compare
+    union = tgt_np + compare
+    iou = overlap.sum()/float(union.sum())
+    return iou
 
-for file in files:
-    img_dir = root + file
-    img = cv2.imread(img_dir, cv2.IMREAD_COLOR)
-    transformer = Transformer(img)
+def predict_volume(tgt):
+    result = [0 for _ in range(23)]
+    cnt = [0 for _ in range(23)]
 
-    centered = transformer.MoveQrToCenter(transformer._image)
-    aff = transformer.Perspective(centered)
-    affrot = transformer.Rotate(aff)
+    tgt_np = np.array(tgt, dtype=bool)
 
-    transformer.reset(affrot)
-    constant = transformer.MakeConstantQr(affrot)
+    root = 'backend/images/label'
+    labels = os.listdir(root)
+    for label in labels:
+        file_name = label.split('.')[0]
+        volume = file_name.split('_')[-1]
+        idx = int(int(volume) / 10)
 
-    crop = transformer.CropInfusor(constant)
+        img = cv2.imread(root + '/' + label)
+        compare = np.array(img, dtype=bool)
+        iou = cal_iou(tgt_np, compare)
 
-    cv2.imshow('image', crop)
-    cv2.waitKey()
+        cnt[idx] += 1
+        result[idx] += iou
 
-cv2.destroyAllWindows()
+    for i in range(len(result)):
+        result[i] /= cnt[i]
+
+    max_iou = max(result)
+    predict = result.index(max_iou) * 10
+
+    return predict

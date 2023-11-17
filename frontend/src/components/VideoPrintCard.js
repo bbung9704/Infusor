@@ -1,11 +1,11 @@
 import VideoPrint from './VideoPrint';
 
-const VideoPrintCard = ({showVideo, videoRef, capturedPhoto, processTime, isLoading}) => {
+const VideoPrintCard = ({showVideo, videoRef, capturedPhoto, processTime, predictVolume, isLoading}) => {
 
     return (
         <div className="video-container-box">
             <div className='video-container-box-title'>
-                <div>Infusor Segmentation</div>
+                <div>{'예상부피: ' + predictVolume.toString() + 'mL'}</div>
                 <div>{'응답시간: ' + (processTime * 0.001).toFixed(3).toString() + 's'}</div>
             </div>
             <VideoPrint showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} isLoading={isLoading} />
