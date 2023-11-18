@@ -111,7 +111,7 @@ const Media = () => {
             <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} processTime={processTime} predictVolume={predictVolume} isLoading={isLoading} />
             <div className='history'>
                 <div className='history-btn' onClick={moveToList}>
-                    히스토리 보기
+                    📚히스토리 보기
                 </div>
             </div>
             <div className='fixed-btn'>
