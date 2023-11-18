@@ -54,3 +54,14 @@
     font-size: 15px;
     color: #737373;
 }
+
+.list-fixed-btn {
+    position: fixed;
+    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 3%;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+}

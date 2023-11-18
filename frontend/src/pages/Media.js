@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import serviceUrl from "../utils/Utils";
 import "../css/Media.css";
@@ -25,6 +26,7 @@ const constraints = {
 const Media = () => {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+    const navigate = useNavigate();
     const [capturedPhoto, setCapturedPhoto] = useState(null);
     const [showVideo, setShowVideo] = useState(true);
     const [processTime, setProcessTime] = useState(0);
@@ -75,6 +77,10 @@ const Media = () => {
         
     };
 
+    const moveToList = () => {
+        navigate('/test');
+    }
+
     const fns = ComponentsArray.setButtonSetModalComponentsFn([showVideoAgain, postImage]);
 
     useEffect(() => {
@@ -103,6 +109,11 @@ const Media = () => {
     return (
         <div className='container'>
             <VideoPrintCard showVideo={showVideo} videoRef={videoRef} capturedPhoto={capturedPhoto} processTime={processTime} predictVolume={predictVolume} isLoading={isLoading} />
+            <div className='history'>
+                <div className='history-btn' onClick={moveToList}>
+                    히스토리 보기
+                </div>
+            </div>
             <div className='fixed-btn'>
                 {
                     <div>
