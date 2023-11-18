@@ -3,10 +3,7 @@ from datetime import datetime, timezone, timedelta
 import numpy as np
 from pyzbar.pyzbar import decode
 from fastapi import HTTPException
-from firebase import fireBaseStorage
 
-
-bucket = fireBaseStorage.bucket
 
 class Transformer:
     def __init__(self, image):
@@ -26,9 +23,6 @@ class Transformer:
             self._setTransPoints()
         
         else:
-            # image = processor.serverToClient(self._image)
-            # blob = bucket.blob('fail/'+ self.file_name + '.jpeg')
-            # blob.upload_from_string(image, content_type='image/jpeg')
             raise HTTPException(status_code=400, detail='QR코드를 인식할 수 없습니다.')
         
     def reDetectQrCoordinate(self, image):
@@ -47,9 +41,6 @@ class Transformer:
             self._setTransPoints()
         
         else:
-            # image = processor.serverToClient(self._image)
-            # blob = bucket.blob('fail/'+ self.file_name + '.jpeg')
-            # blob.upload_from_string(image, content_type='image/jpeg')
             raise HTTPException(status_code=400, detail='QR코드를 인식할 수 없습니다.')
         
     def drawPoint(self, image):

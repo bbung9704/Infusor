@@ -2,6 +2,7 @@
 from affine import Transformer, processor
 from ml_model.ml import ML_Model
 from predict_volume import predict_volume
+from util import get_time
 import cv2
 import numpy as np
 
@@ -15,14 +16,11 @@ from pydantic import BaseModel
 # from pymongo import MongoClient
 
 # Firebase Storage
-from firebase import fireBaseStorage
+from firebase import fireBase
 
-# Firebase Storage
-bucket = fireBaseStorage.bucket
-
-# # DB
-# client = MongoClient(os.environ.get("MONGO_DB_PATH"))
-# db = client.imageSet
+# Firebase
+bucket = fireBase.bucket
+db = fireBase.db
 
 # APP
 app = FastAPI()
@@ -55,10 +53,6 @@ app.add_middleware(
 #### Model
 class ImageFromFront(BaseModel):
     data: str
-
-class DateFromBack(BaseModel):
-    url: str
-    volume: int
 ####
 
 
@@ -76,7 +70,6 @@ async def uploadimage(image: ImageFromFront):
     try:
         #### 이미지 전처리
         image = processor.clientToServerBase64(image.data)
-        origin = processor.serverToClient(image)
         ####
 
         #### Transform
@@ -117,7 +110,12 @@ async def uploadimage(image: ImageFromFront):
         res = {
             "url": blob.public_url,
             "volume": volume,
+            "time": fireBase.timestamp(),
         }
+
+        db.collection("predictions").add(res)
+
+        res["time"] = get_time()
 
         return res
 
@@ -126,3 +124,16 @@ async def uploadimage(image: ImageFromFront):
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=404)
+
+@app.get("/api/pred")
+async def prediction_list():
+    try:
+        pred_ref = db.collection("predictions")
+        query = pred_ref.order_by("time", direction=fireBase.reverse()).limit(10)
+        objs = [obj.to_dict() for obj in query.stream()]
+        json = {"data": objs}    
+
+        return json
+    
+    except Exception as e:
+        return e

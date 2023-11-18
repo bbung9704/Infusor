@@ -4,7 +4,7 @@ import {Routes, Route, Link} from 'react-router-dom'
 import Media from "./pages/Media";
 
 import './App.css'
-import Test from "./pages/Test";
+import List from "./pages/List";
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
       </nav>
       <Routes>
         <Route path="/" element={<Media />} />
-        <Route path="test/" element={<Test />} />
+        <Route path="test/" element={<List />} />
       </Routes>
     </div>
   );
