@@ -20,7 +20,7 @@ class ML_Model:
         ## tf
         self.input_shape = (736, 384, 3)
         self.model = DeepLabV3Plus(self.input_shape, num_classes=1)
-        self.model.load_weights("ckp/DeepLabV3Plus_60.h5")
+        self.model.load_weights("ckp/DeepLabV3Plus_100.h5")
 
     def output2binary(self, imgs):
         img = imgs[0]
@@ -40,7 +40,7 @@ class ML_Model:
         img = cv2.resize(img_root, dsize=(384, 736))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-        img = ((img / 255) ** 1.5) * 255        # 감마 보정 -> 모델 정확도 높히기 위해 인풋 이미지의 contrast 높임.
+        img = (((img / 255)) ** 1.3) * 255        # 감마 보정 -> 모델 정확도 높히기 위해 인풋 이미지의 contrast 높임.
         img = np.array(img[np.newaxis, :, :])
 
         out = self.model(img)
