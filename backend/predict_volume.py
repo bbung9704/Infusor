@@ -36,13 +36,13 @@ def cal_iou(tgt_np, compare):
 #     return predict
 
 def predict_volume(tgt):
-    tgt_area = np.sum(tgt)
+    tgt = np.array(tgt) / 255
+    tgt_area = np.sum(tgt) * 3
     coef = 0.0007725
     intercept = -42.33394674384486
-    area = np.sum(tgt_area)
+    predict = round(coef * tgt_area + intercept)
 
-    predict = round(coef * area + intercept)
     if predict > 220: predict = 220
-    elif predict < 0: predict = 9
+    elif predict < 0: predict = 0
 
     return predict
